@@ -2,7 +2,7 @@ name: Deploy custom artifacts to GitHub Pages
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main"]   # change to your branch if using a source branch
   workflow_dispatch:
 
 permissions:
@@ -15,23 +15,32 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # 1️⃣ Build your custom static files
+  # 1️⃣ Build your custom site/artifacts
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout source
+      - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Set up Node.js (if using Node builds)
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
 
       - name: Build site
         run: |
-          mkdir public
-          echo "<h1>Hello from custom workflow</h1>" > public/index.html
+          # Example: create a simple HTML file
+          mkdir -p public
+          echo "<h1>Hello from GitHub Actions</h1>" > public/index.html
           echo "Built at $(date)" >> public/index.html
 
-      - name: Upload artifact for deployment
+          # Optional: show files for debugging
+          ls -R public
+
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./public  # 👈 directory containing the built site
+          path: ./public  # must match your output folder
 
   # 2️⃣ Deploy to GitHub Pages
   deploy:
@@ -44,5 +53,3 @@ jobs:
       - name: Deploy artifact
         id: deployment
         uses: actions/deploy-pages@v4
-
-
